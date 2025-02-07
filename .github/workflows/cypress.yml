@@ -1,0 +1,79 @@
+name: Run Cypress Tests
+
+on:
+  push:
+    branches:
+      - master  # Trigger workflow on push to 'master'
+  pull_request:
+    branches:
+      - master  # Trigger workflow on pull requests to 'master'
+
+jobs:
+  gothru-dashboard-cypress-tests:
+    runs-on: windows-latest  # Run on the latest Windows environment
+
+    steps:
+      # Step 1: Checkout code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Setup Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # Specify the Node.js version
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install  # Install dependencies from package.json
+
+      # Step 4: Cache Cypress binary
+      - name: Cache Cypress binary
+        uses: actions/cache@v4
+        with:
+          path: C:\Users\runneradmin\AppData\Local\Cypress\Cache  # Correct path for Cypress cache
+          key: ${{ runner.os }}-cypress-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-cypress-
+
+      # Step 5: Install Cypress and Mochawesome
+      - name: Install Cypress and Mochawesome
+        run: npm install cypress mochawesome mochawesome-merge mochawesome-report-generator --save-dev
+
+      # Step 6: Ensure Cypress binary is installed
+      - name: Install Cypress binary
+        run: npx cypress install
+
+      # Step 7: Run Cypress tests
+      - name: Run Cypress tests
+        run: npx cypress run --browser chrome --headless
+
+      # Step 8: Upload Cypress test results (HTML)
+      - name: Upload Cypress test results (HTML)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-html-report
+          path: cypress/results/*.html
+
+      # Step 9: Upload Cypress test results (JSON)
+      - name: Upload Cypress test results (JSON)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-json-report
+          path: cypress/results/*.json
+
+      # Step 10: Upload video recordings of test execution
+      - name: Upload test execution videos
+        uses: actions/upload-artifact@v4
+        if: always()  # Ensure videos are uploaded even if tests fail
+        with:
+          name: cypress-videos
+          path: cypress/videos
+
+      # Step 11: Upload screenshots (if any)
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        if: always()  # Ensure screenshots are uploaded even if tests fail
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
