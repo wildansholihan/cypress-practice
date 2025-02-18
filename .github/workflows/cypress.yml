@@ -1,49 +1,47 @@
-name: Run Cypress Testss
+name: Run Cypress Tests
 
 on:
   push:
     branches:
-      - master  # Trigger workflow on push to 'master'
+      - master
   pull_request:
     branches:
-      - master  # Trigger workflow on pull requests to 'master'
+      - master
 
 jobs:
   gothru-dashboard-cypress-tests:
-    runs-on: windows-latest  # Run on the latest Windows environment
+    runs-on: windows-latest
 
     steps:
-      # Step 1: Checkout code from the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Setup Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'  # Specify the Node.js version
+          node-version: '16'
 
-      # Step 4: Cache Cypress binary
       - name: Cache Cypress binary
         uses: actions/cache@v4
         with:
-          path: C:\Users\runneradmin\AppData\Local\Cypress\Cache  # Correct path for Cypress cache
+          path: C:\Users\runneradmin\AppData\Local\Cypress\Cache
           key: ${{ runner.os }}-cypress-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-cypress-
 
-      # Step 7: Run Cypress tests
+      # ✅ Tambahkan install Cypress untuk memastikan binary ada
+      - name: Install Cypress
+        run: npx cypress install
+
       - name: Run Cypress tests
         run: npx cypress run --browser chrome --headless
 
-      # Step 8: Upload Cypress test results (HTML)
       - name: Upload Cypress test results (HTML)
         uses: actions/upload-artifact@v4
         with:
           name: cypress-html-report
           path: cypress/results/*.html
 
-      # Step 9: Upload Cypress test results (JSON)
       - name: Upload Cypress test results (JSON)
         uses: actions/upload-artifact@v4
         with:
