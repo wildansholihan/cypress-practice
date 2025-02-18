@@ -23,10 +23,6 @@ jobs:
         with:
           node-version: '16'  # Specify the Node.js version
 
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: npm install  # Install dependencies from package.json
-
       # Step 4: Cache Cypress binary
       - name: Cache Cypress binary
         uses: actions/cache@v4
@@ -35,14 +31,6 @@ jobs:
           key: ${{ runner.os }}-cypress-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-cypress-
-
-      # Step 5: Install Cypress and Mochawesome
-      - name: Install Cypress and Mochawesome
-        run: npm install cypress mochawesome mochawesome-merge mochawesome-report-generator --save-dev
-
-      # Step 6: Ensure Cypress binary is installed
-      - name: Install Cypress binary
-        run: npx cypress install
 
       # Step 7: Run Cypress tests
       - name: Run Cypress tests
@@ -61,19 +49,3 @@ jobs:
         with:
           name: cypress-json-report
           path: cypress/results/*.json
-
-      # Step 10: Upload video recordings of test execution
-      - name: Upload test execution videos
-        uses: actions/upload-artifact@v4
-        if: always()  # Ensure videos are uploaded even if tests fail
-        with:
-          name: cypress-videos
-          path: cypress/videos
-
-      # Step 11: Upload screenshots (if any)
-      - name: Upload screenshots
-        uses: actions/upload-artifact@v4
-        if: always()  # Ensure screenshots are uploaded even if tests fail
-        with:
-          name: cypress-screenshots
-          path: cypress/screenshots
